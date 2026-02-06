@@ -106,6 +106,29 @@ def case33(t=0):
     ppc["DRloadcost"] = array([
 
     ])
+
+        # ===================== Data Center (DC) data: 新增 =====================
+    # 两个数据中心挂接节点（1-indexed）：选 24号与30号母线
+    # 所有口径按文档：kW / ms
+    ppc["DC"] = {
+        "bus": array([24, 30]),                 # 数据中心所在母线编号（1-indexed）
+        "eta": array([1.0, 1.0]),               # η_k（kW/等价算力负荷），此处取1
+        "Cbar": array([2000.0, 2000.0]),        # C̄_k（kW）物理上限（可选）
+        "pf":  array([0.98, 0.98]),             # 功率因数（用于估算Q，若你不想加Q也可忽略）
+        # 单业务源 S={1}：d_{s,t}（kW），当前 T=1，所以给一个标量序列
+        "demand": array([1400]),              # d_{1,t}，t=0时 1400 kW
+        # τ_{s,k}：单程网络时延（ms），S=1 => 长度=K
+        "tau": array([6.0, 10.0]),              # 到两个DC的单程时延
+        # 时延预算（ms）：Lmax = Lnet,max + Lq,max
+        "Lnet_max": array([12.0]),              # L_net,max_{1,t}
+        "Lq_max":   array([18.0]),              # L_q,max_{1,t}
+        "Lmax":     array([30.0]),              # L_max_{1,t}
+        "gamma":    0.01,                       # γ_s（ms/kW），S=1
+        "B0":       0.0,                        # B_{s,0}（kW）
+        "Bend":     0.0                         # B_end_s（kW），设为0表示必须全部服务完
+    }
+
+
     ## convert branch impedances from Ohms to p.u.
     from pypower.idx_bus import BUS_I, PD, QD, BASE_KV
     from pypower.idx_brch import F_BUS, T_BUS, BR_R, BR_X
