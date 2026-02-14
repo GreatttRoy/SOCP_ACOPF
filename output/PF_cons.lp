@@ -1,6 +1,5 @@
 \ Model MultiTimeStepModel
 \ LP format - for model browsing. Use MPS format to capture full model detail.
-\ Signature: 0x245aa346c371f8e
 Minimize
   l[0,0,1,0.005752591161723931,0.002932448856844086]
    + l[0,1,2,0.03075951673242839,0.0156667639990117]
