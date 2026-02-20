@@ -9,7 +9,7 @@
 5. [潮流结果计算公式](#5-潮流结果计算公式)
 6. [模型特点](#6-模型特点)
 7. [基于方向割的锥还原方法](#7-基于方向割的锥还原方法)
-8. [模型特点（修订）](#8-模型特点修订)
+8. [锥还原算法流程](#8-锥还原算法流程)
 
 ---
 
@@ -170,7 +170,7 @@
 
 $$
 \begin{align}
-\min_{P_{t,i,j}, Q_{t,i,j}, l_{t,i,j}, v_{t,i}, p_{t,i}, q_{t,i}, P_{g,t,g}, Q_{g,t,g}, P_{DR,t,dr}} \quad & \sum_{t=0}^{T-1} \sum_{(i,j) \in E} l_{t,i,j} \\
+\min_{P_{t,i,j}, Q_{t,i,j}, l_{t,i,j}, v_{t,i}, p_{t,i}, q_{t,i}, P_{g,t,g}, Q_{g,t,g}, P_{DR,t,dr}} \quad & \sum_{t=0}^{T-1} \sum_{(i,j) \in E} -P_{dr,t,j} \\
 \text{s.t.} \quad \\
 & v_{t,0} = 1.0, \quad \forall t \in \{0,1,\ldots,T-1\} \tag{1} \\
 \\
@@ -642,8 +642,8 @@ $$
 - 只有当方向搜索停滞时，才增大 $r$，进入下一层
 - 这种策略充分利用了当前约束强度，避免过早提升 $r$ 导致问题过度约束
 
-### 7.4 锥还原算法流程
-
+## 8 锥还原算法
+### 8.1 锥还原算法流程
 **算法：基于层次化方向割的锥还原方法**
 
 ---
@@ -692,15 +692,8 @@ $$
    - 方向割集合 $\mathcal{L} \leftarrow \emptyset$
    - 历史记录 $\mathcal{H} \leftarrow \emptyset$（用于存储每次迭代的间隙值）
 
-5. **第一层初始化策略**（两种方案）：
-
-   **方案A：全局方向集初始化**（稳健但约束较多）
-   - 生成第一层全局方向集 $\mathcal{D}_1 = \{(1,1)^T, (-1,1)^T, (-1,-1)^T, (1,-1)^T\}$
-   - 计算第一层收缩因子 $r_1 = r_{\min}$
-   - 对每条支路 $(i,j) \in E$ 和每个时段 $t$，对每个方向 $\mathbf{d} \in \mathcal{D}_1$：
-     - 添加约束 $\frac{\mathbf{d}^T \mathbf{x}_{ij}}{\|\mathbf{d}\|_2} \geq r_1 \cdot \sqrt{l_{t,i,j} \cdot v_{t,i}}$ 到 $\mathcal{L}$
-
-   **方案B：松弛解方向初始化**（高效但需实验验证）
+5. **第一层初始化策略**：
+   **松弛解方向初始化**
    - 对每条支路 $(i,j) \in E$ 和每个时段 $t$，若 $\Delta_{t,i,j} > \epsilon$：
      - 识别松弛解方向：$\hat{\mathbf{d}} = (P^*_{t,i,j}, Q^*_{t,i,j})^T / \|(P^*_{t,i,j}, Q^*_{t,i,j})\|_2$
      - 添加约束 $\frac{\hat{\mathbf{d}}^T \mathbf{x}_{ij}}{\|\hat{\mathbf{d}}\|_2} \geq r_1 \cdot \sqrt{l_{t,i,j} \cdot v_{t,i}}$ 到 $\mathcal{L}$
@@ -710,7 +703,7 @@ $$
 
 **第二阶段：主迭代循环**
 
-3. **while** $k < K_{\max}$ **do**：
+1. **while** $k < K_{\max}$ **do**：
 
    **步骤 3.1：求解带割约束的 SOCP 问题**
 
@@ -773,28 +766,12 @@ $$
 
    - 在 $\hat{\mathbf{d}}^{k+1}$ 附近生成新方向 $\mathbf{d}^{new}$，可采用以下方法之一：
 
-     **方法A：角度空间微扰**（需要三角函数，计算开销较大）
-     $$
-     \theta = \arctan(Q^{k+1}_{t,i,j} / P^{k+1}_{t,i,j}), \quad
-     \mathbf{d}^{new}_{\pm} = (\cos(\theta \pm \delta\theta), \sin(\theta \pm \delta\theta))^T
-     $$
-
-     **方法B：正交方向微扰**（推荐，计算高效）
+     **正交方向微扰**
      $$
      \mathbf{d}^{\perp} = \frac{(-Q^{k+1}_{t,i,j}, P^{k+1}_{t,i,j})^T}{\|(P^{k+1}_{t,i,j}, Q^{k+1}_{t,i,j})\|_2}, \quad
      \mathbf{d}^{new}_{\pm} = \frac{\hat{\mathbf{d}}^{k+1} \pm \alpha \mathbf{d}^{\perp}}{\|\hat{\mathbf{d}}^{k+1} \pm \alpha \mathbf{d}^{\perp}\|_2}
      $$
      其中 $\alpha \in [0.1, 0.3]$ 为微扰强度。
-
-     **方法C：旋转矩阵近似**（最高效，适用于小角度）
-
-     对于小角度 $\delta\theta$，利用泰勒展开 $\cos(\delta\theta) \approx 1, \sin(\delta\theta) \approx \delta\theta$：
-     $$
-     \begin{pmatrix} P_{new} \\ Q_{new} \end{pmatrix}_{\pm} =
-     \begin{pmatrix} P^{k+1}_{t,i,j} \mp \delta\theta \cdot Q^{k+1}_{t,i,j} \\
-     \pm \delta\theta \cdot P^{k+1}_{t,i,j} + Q^{k+1}_{t,i,j} \end{pmatrix}, \quad
-     \mathbf{d}^{new}_{\pm} = \frac{(P_{new}, Q_{new})^T_{\pm}}{\|(P_{new}, Q_{new})_{\pm}\|_2}
-     $$
 
    - 添加新的方向割约束到 $\mathcal{L}$：
      $$
@@ -862,7 +839,7 @@ $$
 
 **第三阶段：终止处理**
 
-4. **终止条件判断**：
+1. **终止条件判断**：
 
    **if** $k \geq K_{\max}$ **then**
 
@@ -872,7 +849,7 @@ $$
 
    **end if**
 
-5. **返回结果**：
+2. **返回结果**：
 
    返回最后一次迭代的解 $(P^{k}_{t,i,j}, Q^{k}_{t,i,j}, l^{k}_{t,i,j}, v^{k}_{t,i})$ 及终止状态
 
@@ -898,23 +875,9 @@ $$
 
 ---
 
-### 7.5 方向生成方法对比与实现建议
+### 8.2 方向生成方法对比与实现建议
 
-#### 7.5.1 三种方向生成方法对比
-
-在步骤 3.4 的层内自适应方向搜索中，需要在当前解方向 $\hat{\mathbf{d}}^{k+1}$ 附近生成新方向。以下对比三种方法：
-
-| 方法 | 计算复杂度 | 几何意义 | 优点 | 缺点 | 推荐场景 |
-|------|-----------|---------|------|------|---------|
-| **方法A：角度空间微扰** | $O(n_{\text{trig}})$ <br> 需要 `atan2`, `sin`, `cos` | 精确的角度旋转 | 直观易理解，角度步长可控 | 三角函数开销大，跨象限需特殊处理 | 调试和理论分析 |
-| **方法B：正交方向微扰** | $O(n)$ <br> 仅需基本算术 | 沿切线方向微扰 | 计算高效，无三角函数 | 微扰强度 $\alpha$ 与角度关系非线性 | **推荐用于实际应用** |
-| **方法C：旋转矩阵近似** | $O(n)$ <br> 仅需基本算术 | 小角度旋转近似 | 最高效，保持旋转语义 | 仅适用小角度（$\delta\theta < 15°$） | **推荐用于第2-3层** |
-
-**计算复杂度说明**：
-- $n_{\text{trig}}$：三角函数计算的时间复杂度（通常为数十到数百个基本运算）
-- $n$：向量维度（本问题中 $n=2$）
-
-#### 7.5.2 方法B详细说明（正交方向微扰）
+#### 8.2.1 方法详细说明（正交方向微扰）
 
 **几何原理**：
 
@@ -924,7 +887,7 @@ $$
 
 ```python
 # 伪代码
-def generate_directions_method_B(P, Q, alpha=0.2):
+def generate_directions_method(P, Q, alpha=0.2):
     """正交方向微扰法生成新方向"""
     # 1. 计算当前方向的范数
     norm_d = sqrt(P**2 + Q**2)
@@ -969,83 +932,7 @@ $$
 
 因此 $\alpha = 0.2$ 大约对应 $\delta\theta \approx 11°$。
 
-#### 7.5.3 方法C详细说明（旋转矩阵近似）
-
-**几何原理**：
-
-使用泰勒展开近似旋转矩阵：
-
-$$
-R(\delta\theta) = \begin{bmatrix} \cos(\delta\theta) & -\sin(\delta\theta) \\ \sin(\delta\theta) & \cos(\delta\theta) \end{bmatrix}
-\approx \begin{bmatrix} 1 & -\delta\theta \\ \delta\theta & 1 \end{bmatrix}
-$$
-
-这在 $\delta\theta \ll 1$ （弧度）时非常精确。
-
-**计算步骤**：
-
-```python
-# 伪代码
-def generate_directions_method_C(P, Q, delta_theta=0.1):
-    """旋转矩阵近似法生成新方向（delta_theta单位：弧度）"""
-    # 1. 应用旋转矩阵（顺时针和逆时针）
-    P_new_1 = P - delta_theta * Q  # 顺时针
-    Q_new_1 = delta_theta * P + Q
-
-    P_new_2 = P + delta_theta * Q  # 逆时针
-    Q_new_2 = -delta_theta * P + Q
-
-    # 2. 归一化
-    norm_1 = sqrt(P_new_1**2 + Q_new_1**2)
-    norm_2 = sqrt(P_new_2**2 + Q_new_2**2)
-
-    d_new_1 = (P_new_1 / norm_1, Q_new_1 / norm_1)
-    d_new_2 = (P_new_2 / norm_2, Q_new_2 / norm_2)
-
-    return d_new_1, d_new_2
-```
-
-**参数选择指南**：
-
-| 层次 $\ell$ | $\delta\theta$ (弧度) | $\delta\theta$ (角度) | 近似误差 |
-|------------|---------------------|---------------------|---------|
-| 1 | 0.26 | 15° | $<$ 3% |
-| 2 | 0.17 | 10° | $<$ 1.5% |
-| 3+ | 0.087 | 5° | $<$ 0.4% |
-
-**适用条件**：当 $\delta\theta < 0.26$ rad（约15°）时，近似误差 $< 3\%$，对大多数应用已足够精确。
-
-#### 7.5.4 实现建议
-
-**推荐的混合策略**：
-
-```python
-# 算法实现伪代码
-def select_direction_generation_method(layer_ell):
-    """根据层次选择方向生成方法"""
-    if layer_ell == 1:
-        # 第1层：使用方法B（正交微扰）
-        # 覆盖范围大，计算高效
-        return method_B, alpha=0.30
-
-    elif layer_ell <= L_max - 1:
-        # 第2到倒数第2层：使用方法C（旋转矩阵近似）
-        # 角度语义清晰，计算最快
-        delta_theta = 0.26 / layer_ell  # 逐层减小
-        return method_C, delta_theta
-
-    else:
-        # 最后一层：使用方法C或B，精细搜索
-        return method_C, delta_theta=0.087  # 5度
-```
-
-**性能优化技巧**：
-
-1. **预计算归一化因子**：对于方法B和C，可以先不归一化，统一在添加约束时归一化
-2. **批量处理**：对多个支路同时生成方向，利用向量化运算
-3. **方向去重**：检查新方向是否与已有方向过于接近（如夹角 $< 2°$），避免重复约束
-
-#### 7.5.5 松弛解间隙的实践意义
+#### 8.2.2 松弛解间隙的实践意义
 
 **理论背景**：
 
