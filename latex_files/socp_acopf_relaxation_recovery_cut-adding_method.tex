@@ -48,6 +48,22 @@
 \renewcommand{\algorithmicensure}{\textbf{输出:}}
 \renewcommand{\algorithmiccomment}[1]{\hfill$\triangleright$ \textit{#1}}
 
+% 可跨页算法环境
+\makeatletter
+\newenvironment{breakablealgorithm}{%
+  \begin{center}
+    \refstepcounter{algorithm}%
+    \hrule height.8pt depth0pt \kern2pt%
+    \renewcommand{\caption}[2][\relax]{%
+      {\raggedright\textbf{算法~\thealgorithm\quad}##2\par}%
+      \kern2pt\hrule\kern2pt
+    }%
+}{%
+    \kern2pt\hrule\relax
+  \end{center}%
+}
+\makeatother
+
 % 标题信息
 \title{二阶锥松弛交流潮流优化的锥还原方法\\(SOCP-AC-OPF-Relaxation-Recovery-Cut-Adding-Method)}
 \author{}
@@ -262,11 +278,34 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
 
 % ==================== 算法伪代码 ====================
 \newpage
+\subsection{算法总体流程}
+
+层次化方向割锥还原算法由三个阶段组成：初始化、主迭代循环和终止处理。算法以 SOCP 松弛解作为起点，通过逐步添加方向割约束收紧可行域，驱动松弛解向锥面靠近，直至锥松弛间隙低于收敛容差 $\epsilon$ 或达到最大迭代次数 $K_{\max}$。
+
+\paragraph{阶段一：初始化}
+以初始 SOCP 解 $(P^*, Q^*, l^*, v^*)$ 为出发点，对每条支路 $(i,j)$ 提取当前功率方向 $\mathbf{d} = (P^*_{t,i,j}, Q^*_{t,i,j})^T$，计算初始收缩因子 $r_{\min} = \|\mathbf{d}\| / \sqrt{l^*_{t,i,j} v^*_{t,i}}$（即当前解在锥面方向上的投影比），并将对应的方向割约束加入约束集合 $\mathcal{L}$，同时置层计数 $\ell = 1$、迭代计数 $k = 0$、间隙历史集合 $\mathcal{H} = \emptyset$。
+
+\paragraph{阶段二：主迭代循环}
+每轮迭代包含以下步骤：
+
+\textbf{步骤 1（SOCP 求解）}：在当前割约束集合 $\mathcal{L}$ 下求解 SOCP，得到新解 $(P^k, Q^k, l^k, v^k)$。
+
+\textbf{步骤 2（间隙计算）}：对所有支路和时段计算锥松弛间隙 $\Delta^k_{t,i,j} = l^k_{t,i,j} v^k_{t,i} - [(P^k_{t,i,j})^2 + (Q^k_{t,i,j})^2]$，并取最大间隙 $\Delta^k_{\max}$ 记录至历史集合 $\mathcal{H}$。
+
+\textbf{步骤 3（全局收敛检验）}：若 $\Delta^k_{\max} \leq \epsilon$，则所有支路的松弛均已收紧，返回当前解并标记为收敛。
+
+\textbf{步骤 4（层内自适应方向更新）}：对仍有间隙（$\Delta^k_{t,i,j} > \epsilon$）的支路，以当前解方向 $\hat{\mathbf{d}}$ 和当前层收缩因子 $r_\ell$ 生成新的方向割，补充进 $\mathcal{L}$。收缩因子 $r_\ell$ 在各层间线性递增（从 $r_{\min}$ 到 $1$），层号越高割越紧。
+
+\textbf{步骤 5--6（停滞检测与层次提升）}：若近 $W_{\text{stag}}$ 次迭代的最大间隙改善量均低于 $\epsilon_{\text{stag}}$，判定当前层已停滞。此时若 $\ell < L_{\max}$，则提升至下一层：增大收缩因子 $r_\ell$，生成新层全局方向集 $\mathcal{D}_\ell$ 并添加对应的割约束，清空间隙历史重新监测；否则退出循环。
+
+\paragraph{阶段三：终止处理}
+若总迭代次数达到 $K_{\max}$ 仍未收敛，或层数达到最大层数 $L_{\max}$仍未收敛，返回当前最优解并标记为未完全收敛，供后续处理使用。
 \subsection{算法伪代码}
 
-\begin{algorithm}[H]
-\caption{层次化方向割锥还原算法（第1部分：初始化）}
-\label{alg:part1}
+\begin{breakablealgorithm}
+\small
+\caption{层次化方向割锥还原算法}
+\label{alg:hierarchical_cone_recovery}
 \begin{algorithmic}[1]
 \REQUIRE SOCP 松弛解 $(P^*, Q^*, l^*, v^*)$，参数 $\epsilon, \epsilon_{\text{stag}}, W_{\text{stag}}, L_{\max}, K_{\max}$
 \ENSURE 还原解 $(\bar{P}, \bar{Q}, \bar{l}, \bar{v})$，收敛状态
@@ -276,14 +315,7 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
 \STATE $\mathcal{H} \leftarrow \emptyset$ \COMMENT{间隙历史记录}
 \STATE $\mathbf{d} \leftarrow (P^*_{t,i,j}, Q^*_{t,i,j})^T,\ \forall (i,j) \in E,\, t \in [0,T-1]$ \COMMENT{初始解的方向集合}
 \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_1\sqrt{l_{t,i,j}v_{t,i}}\right\}$ \COMMENT{初始层的方向割约束}
-\STATE $r_{\min} \leftarrow \dfrac{\|\mathbf{d}\|}{\sqrt{l^*_{t,i,j}v^*_{t,i}}}$ \COMMENT{初始收缩因子}
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\caption{层次化方向割锥还原算法（第2部分：主迭代循环）}
-\label{alg:part2}
-\begin{algorithmic}[1]
+\STATE $r_{\min} \leftarrow \|\mathbf{d}\| / \sqrt{l^*_{t,i,j}v^*_{t,i}}$ \COMMENT{初始收缩因子}
 \STATE \textit{// 阶段二：主迭代循环}
 \WHILE{$k < K_{\max}$}
     \STATE $k \leftarrow k + 1$
@@ -293,55 +325,40 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
     \FORALL{$(i,j) \in E,\ t \in [0,T-1]$}
         \STATE $\Delta^k_{t,i,j} \leftarrow l^k_{t,i,j} \cdot v^k_{t,i} - \left[(P^k_{t,i,j})^2 + (Q^k_{t,i,j})^2\right]$
     \ENDFOR
-    \STATE $\Delta^k_{\max} \leftarrow \max_{t,i,j} \Delta^k_{t,i,j}$
-    \STATE $\mathcal{H} \leftarrow \mathcal{H} \cup \{\Delta^k_{\max}\}$
+    \STATE $\Delta^k_{\max} \leftarrow \max_{t,i,j} \Delta^k_{t,i,j}$；$\ \mathcal{H} \leftarrow \mathcal{H} \cup \{\Delta^k_{\max}\}$
     \STATE \textit{// 步骤 3：检查全局收敛}
     \IF{$\Delta^k_{\max} \leq \epsilon$}
         \RETURN $(P^k, Q^k, l^k, v^k)$，\textsc{Converged}
     \ENDIF
     \STATE \textit{// 步骤 4：层内自适应方向搜索（固定 $r_\ell$）}
     \STATE $r_\ell \leftarrow r_{\min} + (\ell-1)/(L_{\max}-1) \cdot (1 - r_{\min})$
-    \FORALL{$(i,j) \in E,\ t \in [0,T-1]$}
-        \IF{$\Delta^k_{t,i,j} > \epsilon$}
-            \STATE $\hat{\mathbf{d}} \leftarrow (P^k_{t,i,j}, Q^k_{t,i,j})^T / \left\|(P^k_{t,i,j}, Q^k_{t,i,j})\right\|$
-            \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\hat{\mathbf{d}}^T\mathbf{x}_{ij} / \|\hat{\mathbf{d}}\| \geq r_\ell\sqrt{l_{t,i,j}v_{t,i}}\right\}$
-        \ENDIF
+    \FORALL{$(i,j) \in E,\ t \in [0,T-1]$ 且 $\Delta^k_{t,i,j} > \epsilon$}
+        \STATE $\hat{\mathbf{d}} \leftarrow (P^k_{t,i,j}, Q^k_{t,i,j})^T / \left\|(P^k_{t,i,j}, Q^k_{t,i,j})\right\|$
+        \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\hat{\mathbf{d}}^T\mathbf{x}_{ij} / \|\hat{\mathbf{d}}\| \geq r_\ell\sqrt{l_{t,i,j}v_{t,i}}\right\}$
     \ENDFOR
-    \STATE （续下一部分）
-\ENDWHILE
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\caption{层次化方向割锥还原算法（第3部分：层次提升与终止）}
-\label{alg:part3}
-\begin{algorithmic}[1]
-\STATE （接上一部分）主迭代循环内：
-\STATE \textit{// 步骤 5：判断层内停滞}
-\IF{$|\mathcal{H}| \geq W_{\text{stag}}$}
-    \STATE $\text{recent} \leftarrow \text{LAST\_N\_ELEMENTS}(\mathcal{H}, W_{\text{stag}})$
-    \STATE $\text{improvements} \leftarrow \{\text{recent}[i] - \text{recent}[i+1] \mid i = 1,\ldots,W_{\text{stag}}-1\}$
-    \IF{$\max(\text{improvements}) < \epsilon_{\text{stag}}$}
-        \STATE \textit{// 步骤 6：层次提升}
-        \IF{$\ell < L_{\max}$}
-            \STATE $\ell \leftarrow \ell + 1$
-            \STATE $r_\ell \leftarrow r_{\min} + (\ell-1)/(L_{\max}-1) \cdot (1 - r_{\min})$
-            \STATE $\mathcal{D}_\ell \leftarrow \text{GENERATE\_GLOBAL\_DIRECTIONS}(\ell)$
-            \STATE \textit{// 添加新层的全局方向集}
-            \FORALL{$(i,j) \in E,\ t \in [0,T-1],\ \mathbf{d} \in \mathcal{D}_\ell$}
-                \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_\ell\sqrt{l_{t,i,j}v_{t,i}}\right\}$
-            \ENDFOR
-            \STATE $\mathcal{H} \leftarrow \emptyset$ \COMMENT{清空历史，开始新层监测}
-            \STATE $\mathcal{H} \leftarrow \mathcal{H} \cup \{\Delta^k_{\max}\}$
-        \ELSE
-            \STATE \textbf{break}
+    \STATE \textit{// 步骤 5：判断层内停滞}
+    \IF{$|\mathcal{H}| \geq W_{\text{stag}}$}
+        \STATE $H_{\text{recent}} \leftarrow \text{LAST\_N\_ELEMENTS}(\mathcal{H}, W_{\text{stag}})$
+        \STATE $\text{improvements} \leftarrow \{H_{\text{recent}}[i] - H_{\text{recent}}[i+1] \mid i = 1,\ldots,W_{\text{stag}}-1\}$
+        \IF{$\max(\text{improvements}) < \epsilon_{\text{stag}}$}
+            \STATE \textit{// 步骤 6：层次提升}
+            \IF{$\ell < L_{\max}$}
+                \STATE $\ell \leftarrow \ell + 1$；$\ r_\ell \leftarrow r_{\min} + (\ell-1)/(L_{\max}-1) \cdot (1 - r_{\min})$
+                \STATE $\mathcal{D}_\ell \leftarrow \text{GENERATE\_GLOBAL\_DIRECTIONS}(\ell)$
+                \FORALL{$(i,j) \in E,\ t \in [0,T-1],\ \mathbf{d} \in \mathcal{D}_\ell$}
+                    \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_\ell\sqrt{l_{t,i,j}v_{t,i}}\right\}$
+                \ENDFOR
+                \STATE $\mathcal{H} \leftarrow \emptyset$ \COMMENT{清空历史，开始新层监测}
+            \ELSE
+                \STATE \textbf{break}
+            \ENDIF
         \ENDIF
     \ENDIF
-\ENDIF
+\ENDWHILE
 \STATE \textit{// 阶段三：终止处理}
 \RETURN $(P^k, Q^k, l^k, v^k)$，\textsc{NotFullyConverged}
 \end{algorithmic}
-\end{algorithm}
+\end{breakablealgorithm}
 
 \subsection{算法复杂度分析}
 
