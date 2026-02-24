@@ -435,20 +435,4 @@ SOCP 求解 & $O(n^3)$ & $n$ 为决策变量数 \\
 \item 结合相角恢复技术，可获得原问题的高质量解
 \end{itemize}
 
-\item \textbf{多时段优化}：考虑多个时间断面的联合优化，支持时变的负荷、发电机出力限制等
-
-\item \textbf{适用场景}：适用于辐射状配电网络的最优潮流计算，可用于配电网规划、运行优化等场景
-
-\item \textbf{模型依据}：基于 Branch Flow Model (BFM) 和二阶锥松弛 (SOCP relaxation) 技术，并提供完整的锥还原求解方法
-
-\item \textbf{鲁棒性}：
-\begin{itemize}
-\item 方向割方法保持问题凸性，确保全局最优性
-\item 差凸规划方法提供快速收敛的备选方案
-\item 层次化策略平衡了求解效率和精度
-\end{itemize}
-\end{enumerate}
-
-\textbf{注}：该模型实现基于 Gurobi 优化器求解，使用了高精度参数设置（\texttt{MIPGap=1e-8}, \texttt{OptimalityTol=1e-8}, \texttt{FeasibilityTol=1e-8}）以确保求解精度。锥还原方法可在必要时自动激活，确保解的物理可行性。
-
 \end{document}
