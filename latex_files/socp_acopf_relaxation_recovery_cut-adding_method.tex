@@ -79,18 +79,21 @@
 % ==================== 符号表 ====================
 \section{符号表}
 
-\subsection{索引与集合}
-
 \begin{longtable}{p{3cm}p{5cm}p{6cm}}
+\caption{索引与集合}\label{tab:indices} \\
 \toprule
 符号 & 描述 & 说明 \\
 \midrule
 \endfirsthead
+\multicolumn{3}{l}{\small\itshape（续表）} \\
 \toprule
 符号 & 描述 & 说明 \\
 \midrule
 \endhead
+\bottomrule
+\endlastfoot
 $t$ & 时段索引 & $t \in \{0, 1, \ldots, T-1\}$ \\
+$T$ & 总时段数 & 正整数，$T \geq 1$ \\
 $i, j, k$ & 节点索引 & $i, j, k \in N$ \\
 $(i, j)$ & 支路索引 & 支路 $(i,j) \in E$ 表示连接节点 $i$ 和 $j$ 的支路 \\
 $g$ & 发电机索引 & $g \in G$ \\
@@ -101,104 +104,114 @@ $G$ & 发电机集合 & 所有发电机的集合，$|G|$ = 发电机总数 \\
 $DR$ & 可调负荷集合 & 所有可调负荷的集合，$|DR|$ = 可调负荷总数 \\
 $G_j$ & 节点 $j$ 的发电机集合 & 连接在节点 $j$ 的所有发电机 \\
 $DR_j$ & 节点 $j$ 的可调负荷集合 & 连接在节点 $j$ 的所有可调负荷 \\
-\bottomrule
 \end{longtable}
 
-\subsection{决策变量}
-
-\subsubsection{支路变量}
-
 \begin{longtable}{p{3cm}p{6cm}p{3cm}}
+\caption{决策变量}\label{tab:decision_vars} \\
 \toprule
 符号 & 描述 & 单位 \\
+\midrule
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape（续表）} \\
+\toprule
+符号 & 描述 & 单位 \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\multicolumn{3}{l}{\textit{支路变量}} \\
 \midrule
 $P_{t,i,j}$ & 支路 $(i,j)$ 在时段 $t$ 的有功功率 & p.u. \\
 $Q_{t,i,j}$ & 支路 $(i,j)$ 在时段 $t$ 的无功功率 & p.u. \\
 $l_{t,i,j}$ & 支路 $(i,j)$ 在时段 $t$ 的电流幅值平方 $|I_{ij}|^2$ & p.u. \\
-\bottomrule
-\end{longtable}
-
-\subsubsection{节点变量}
-
-\begin{longtable}{p{3cm}p{6cm}p{3cm}}
-\toprule
-符号 & 描述 & 单位 \\
+\midrule
+\multicolumn{3}{l}{\textit{节点变量}} \\
 \midrule
 $v_{t,i}$ & 节点 $i$ 在时段 $t$ 的电压幅值平方 $|V_i|^2$ & p.u. \\
 $p_{t,i}$ & 节点 $i$ 在时段 $t$ 的有功注入功率 & p.u. \\
 $q_{t,i}$ & 节点 $i$ 在时段 $t$ 的无功注入功率 & p.u. \\
-\bottomrule
-\end{longtable}
-
-\subsubsection{发电机变量}
-
-\begin{longtable}{p{3cm}p{6cm}p{3cm}}
-\toprule
-符号 & 描述 & 单位 \\
+\midrule
+\multicolumn{3}{l}{\textit{发电机变量}} \\
 \midrule
 $P_{g,t,g}$ & 发电机 $g$ 在时段 $t$ 的有功出力 & p.u. \\
 $Q_{g,t,g}$ & 发电机 $g$ 在时段 $t$ 的无功出力 & p.u. \\
-\bottomrule
+\midrule
+\multicolumn{3}{l}{\textit{可调负荷变量}} \\
+\midrule
+$P_{DR,t,dr}$ & 可调负荷 $dr$ 在时段 $t$ 的削减量（正数表示削减） & p.u. \\
 \end{longtable}
 
-\subsubsection{可调负荷变量}
-
-\begin{longtable}{p{3cm}p{6cm}p{3cm}}
+\begin{longtable}{p{3cm}p{6cm}p{4cm}}
+\caption{参数}\label{tab:parameters} \\
 \toprule
 符号 & 描述 & 单位 \\
 \midrule
-$P_{DR,t,dr}$ & 可调负荷 $dr$ 在时段 $t$ 的削减量（正数表示削减） & p.u. \\
-%$P_{DR_j,t,dr}$ & 连接在节点 $j$ 的可调负荷 $dr$ 在时段 $t$ 的削减量（正数表示削减） & p.u. \\
-\bottomrule
-\end{longtable}
-
-\subsection{参数}
-\subsubsection{网络参数}
-\begin{longtable}{p{3cm}p{6cm}p{4cm}}
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape（续表）} \\
 \toprule
 符号 & 描述 & 单位 \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\multicolumn{3}{l}{\textit{网络参数}} \\
 \midrule
 $r_{ij}$ & 支路 $(i,j)$ 的电阻 & p.u. \\
 $x_{ij}$ & 支路 $(i,j)$ 的电抗 & p.u. \\
 $V_{\min}$ & 节点电压幅值下限 & p.u.（默认 0.9） \\
 $V_{\max}$ & 节点电压幅值上限 & p.u.（默认 1.1） \\
-\bottomrule
-\end{longtable}
-
-\subsubsection{固定负荷参数}
-\begin{longtable}{p{3cm}p{6cm}p{4cm}}\toprule
-符号 & 描述 & 单位 \\
+\midrule
+\multicolumn{3}{l}{\textit{固定负荷参数}} \\
 \midrule
 $P_{d,t,j}$ & 节点 $j$ 在时段 $t$ 的固定有功负荷 & p.u. \\
 $Q_{d,t,j}$ & 节点 $j$ 在时段 $t$ 的固定无功负荷 & p.u. \\
-\bottomrule
+\midrule
+\multicolumn{3}{l}{\textit{发电机与可调负荷界限}} \\
+\midrule
+$P_{g,\min}(t)$ & 发电机 $g$ 在时段 $t$ 的有功出力下限 & p.u. \\
+$P_{g,\max}(t)$ & 发电机 $g$ 在时段 $t$ 的有功出力上限 & p.u. \\
+$P_{DR,\min}(t)$ & 可调负荷 $dr$ 在时段 $t$ 的削减量下限 & p.u. \\
+$P_{DR,\max}(t)$ & 可调负荷 $dr$ 在时段 $t$ 的削减量上限 & p.u. \\
 \end{longtable}
 
-\subsection{锥还原相关符号}
-
 \begin{longtable}{p{3cm}p{7cm}p{3cm}}
+\caption{锥还原相关符号}\label{tab:cone_recovery} \\
 \toprule
 符号 & 描述 & 单位 \\
 \midrule
+\endfirsthead
+\multicolumn{3}{l}{\small\itshape（续表）} \\
+\toprule
+符号 & 描述 & 单位 \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
 $\Delta_{t,i,j}$ & 支路 $(i,j)$ 在时段 $t$ 的锥松弛间隙 & p.u.$^2$ \\
-$\mathbf{x}_{ij}$ & 支路功率向量，$\mathbf{x}_{ij} = (P_{t,i,j}, Q_{t,i,j})^T$ & p.u. \\
-$\mathbf{d}$ & 方向向量，$\mathbf{d} = (d_P, d_Q)^T$ & 无量纲 \\
+$\Delta^k_{\max}$ & 第 $k$ 次迭代的最大锥松弛间隙 & p.u.$^2$ \\
+$\mathbf{x}_{ij}$ & 锥表示向量，$\mathbf{x}_{ij} = (2P_{t,i,j}, 2Q_{t,i,j}, l_{t,i,j}-v_{t,i})^T$ & p.u. \\
+$\mathbf{d}$ & 方向向量，$\mathbf{d} = (d_P, d_Q, d_l)^T$ & 无量纲 \\
+$\hat{\mathbf{d}}$ & 归一化方向向量，$\hat{\mathbf{d}} = \mathbf{d}/\|\mathbf{d}\|$ & 无量纲 \\
 $r$ & 收缩因子，$r \in [0, 1]$ & 无量纲 \\
 $r_{\min}$ & 初始收缩因子 & 无量纲 \\
-$r_k$ & 第 $k$ 层的收缩因子 & 无量纲 \\
-$\mathcal{L}$ & 线性割约束集合 & - \\
-$\mathcal{D}_\ell$ & 第 $\ell$ 层的方向集合 & - \\
-$L_{\max}$ & 最大层数 & 正整数（默认 3-5） \\
+$r_\ell$ & 第 $\ell$ 层的收缩因子 & 无量纲 \\
+$k$ & 迭代计数器（算法上下文，区别于节点索引） & 正整数 \\
+$\ell$ & 当前层索引，$\ell \in \{1,\ldots,L_{\max}\}$ & 正整数 \\
+$\mathcal{L}$ & 线性割约束集合 & \textendash{} \\
+$\mathcal{D}_\ell$ & 第 $\ell$ 层的方向集合 & \textendash{} \\
+$\mathcal{H}$ & 间隙历史记录集合 & \textendash{} \\
+$L_{\max}$ & 最大层数 & 正整数（默认 3--5） \\
 $K_{\max}$ & 最大迭代次数 & 正整数（默认 50） \\
+$W_{\text{stag}}$ & 停滞检测窗口大小 & 正整数（默认 5） \\
 $\epsilon$ & 收敛容差 & p.u.$^2$（默认 $10^{-6}$） \\
-\bottomrule
+$\epsilon_{\text{stag}}$ & 停滞检测阈值（最小改善量） & p.u.$^2$（默认 $10^{-4}$） \\
 \end{longtable}
 
 % ==================== 第1节：优化模型 ====================
 \section{二阶锥松弛配电网交流潮流优化模型}
 
 \begin{align}
-\min_{P_{t,i,j}, Q_{t,i,j}, l_{t,i,j}, v_{t,i}, p_{t,i}, q_{t,i}, P_{g,t,g}, Q_{g,t,g}, P_{DR,t,dr}} \quad & \sum_{t=0}^{T-1} \sum_{dr \in DR_j} -P_{DR,t,dr} \\
+\min_{\substack{P_{t,i,j},\, Q_{t,i,j},\, l_{t,i,j},\, v_{t,i} \\ p_{t,i},\, q_{t,i},\, P_{g,t,g},\, Q_{g,t,g},\, P_{DR,t,dr}}} \quad & \sum_{t=0}^{T-1} \sum_{dr \in DR_j} -P_{DR,t,dr} \\
 \text{s.t.} \quad \nonumber \\
 & v_{t,0} = 1.0, \quad \forall t \in \{0,1,\ldots,T-1\} \tag{1} \\
 & p_{t,j} = \sum_{g \in G_j} P_{g,t,g} + \sum_{dr \in DR_j} P_{DR,t,dr} + P_{d,t,j}, \quad \forall t,j \in N \tag{2a} \\
@@ -257,26 +270,26 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
 
 \subsubsection{Cauchy-Schwarz 不等式}
 
-对于支路 $(i,j)$，记 $\mathbf{x}_{ij} = (P_{t,i,j}, Q_{t,i,j})^T$，则二阶锥约束为：
+对于支路 $(i,j)$，记 $\mathbf{x}_{ij} = (2P_{t,i,j}, 2Q_{t,i,j}, l_{t,i,j} - v_{t,i})^T$，则二阶锥约束为：
 
 \begin{equation}
-\|\mathbf{x}_{ij}\|_2 \leq \sqrt{l_{t,i,j} \cdot v_{t,i}}
+\|\mathbf{x}_{ij}\|_2 \leq l_{t,i,j} + v_{t,i}
 \end{equation}
 
-对于任意方向向量 $\mathbf{d} = (d_P, d_Q)^T$，由 Cauchy-Schwarz 不等式可得：
+对于任意方向向量 $\mathbf{d} = (d_P, d_Q, d_l)^T$，由 Cauchy-Schwarz 不等式可得：
 
 \begin{equation}
-\frac{\mathbf{d}^T \mathbf{x}_{ij}}{\|\mathbf{d}\|_2} \leq \|\mathbf{x}_{ij}\|_2 \leq \sqrt{l_{t,i,j} \cdot v_{t,i}}
+\frac{\mathbf{d}^T \mathbf{x}_{ij}}{\|\mathbf{d}\|_2} \leq \|\mathbf{x}_{ij}\|_2 \leq {l_{t,i,j} + v_{t,i}}
 \end{equation}
 
-这表明：沿任意方向 $\mathbf{d}$ 的投影不超过 $\sqrt{l_{t,i,j} \cdot v_{t,i}}$。
+这表明：沿任意方向 $\mathbf{d}$ 的投影不超过 $l_{t,i,j} + v_{t,i}$。
 
 \subsubsection{方向割约束}
 
 为了收紧可行域，在方向 $\mathbf{d}$ 上添加\textbf{带收缩因子的方向割}：
 
 \begin{equation}
-\frac{\mathbf{d}^T \mathbf{x}_{ij}}{\|\mathbf{d}\|_2} \geq r \cdot \sqrt{l_{t,i,j} \cdot v_{t,i}}
+\frac{\mathbf{d}^T \mathbf{x}_{ij}}{\|\mathbf{d}\|_2} \geq r \cdot (l_{t,i,j} + v_{t,i})
 \end{equation}
 
 其中 $r \in [0, 1]$ 为收缩因子：
@@ -292,7 +305,7 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
 层次化方向割锥还原算法由三个阶段组成：初始化、主迭代循环和终止处理。算法以 SOCP 松弛解作为起点，通过逐步添加方向割约束收紧可行域，驱动松弛解向锥面靠近，直至锥松弛间隙低于收敛容差 $\epsilon$ 或达到最大迭代次数 $K_{\max}$。
 
 \paragraph{阶段一：初始化}
-以初始 SOCP 解 $(P^*, Q^*, l^*, v^*)$ 为出发点，对每条支路 $(i,j)$ 提取当前功率方向 $\mathbf{d} = (P^*_{t,i,j}, Q^*_{t,i,j})^T$，计算初始收缩因子 $r_{\min} = \|\mathbf{d}\| / \sqrt{l^*_{t,i,j} v^*_{t,i}}$（即当前解在锥面方向上的投影比），并将对应的方向割约束加入约束集合 $\mathcal{L}$，同时置层计数 $\ell = 1$、迭代计数 $k = 0$、间隙历史集合 $\mathcal{H} = \emptyset$。
+以初始 SOCP 解 $(P^*, Q^*, l^*, v^*)$ 为出发点，对每条支路 $(i,j)$ 提取当前锥表示向量方向 $\mathbf{d} = (2P^*_{t,i,j}, 2Q^*_{t,i,j}, l^*_{t,i,j}-v^*_{t,i})^T$，计算初始收缩因子 $r_{\min} = \|\mathbf{d}\| / (l^*_{t,i,j} + v^*_{t,i})$（即当前解在锥面方向上的投影比），并将对应的方向割约束加入约束集合 $\mathcal{L}$，同时置层计数 $\ell = 1$、迭代计数 $k = 0$、间隙历史集合 $\mathcal{H} = \emptyset$。
 
 \paragraph{阶段二：主迭代循环}
 每轮迭代包含以下步骤：
@@ -322,9 +335,9 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
 \STATE $k \leftarrow 0$，$\ell \leftarrow 1$
 \STATE $\mathcal{L} \leftarrow \emptyset$ \COMMENT{方向割约束集合}
 \STATE $\mathcal{H} \leftarrow \emptyset$ \COMMENT{间隙历史记录}
-\STATE $\mathbf{d} \leftarrow (P^*_{t,i,j}, Q^*_{t,i,j})^T,\ \forall (i,j) \in E,\, t \in [0,T-1]$ \COMMENT{初始解的方向集合}
-\STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_1\sqrt{l_{t,i,j}v_{t,i}}\right\}$ \COMMENT{初始层的方向割约束}
-\STATE $r_{\min} \leftarrow \|\mathbf{d}\| / \sqrt{l^*_{t,i,j}v^*_{t,i}}$ \COMMENT{初始收缩因子}
+\STATE $\mathbf{d} \leftarrow (2P^*_{t,i,j}, 2Q^*_{t,i,j}, l^*_{t,i,j}-v^*_{t,i})^T,\ \forall (i,j) \in E,\, t \in [0,T-1]$ \COMMENT{初始解的方向集合}
+\STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_1 (l_{t,i,j} + v_{t,i})\right\}$ \COMMENT{初始层的方向割约束}
+\STATE $r_{\min} \leftarrow \|\mathbf{d}\| / (l^*_{t,i,j}+v^*_{t,i})$ \COMMENT{初始收缩因子}
 \STATE \textit{// 阶段二：主迭代循环}
 \WHILE{$k < K_{\max}$}
     \STATE $k \leftarrow k + 1$
@@ -342,20 +355,20 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
     \STATE \textit{// 步骤 4：层内自适应方向搜索（固定 $r_\ell$）}
     \STATE $r_\ell \leftarrow r_{\min} + (\ell-1)/(L_{\max}-1) \cdot (1 - r_{\min})$
     \FORALL{$(i,j) \in E,\ t \in [0,T-1]$ 且 $\Delta^k_{t,i,j} > \epsilon$}
-        \STATE $\hat{\mathbf{d}} \leftarrow (P^k_{t,i,j}, Q^k_{t,i,j})^T / \left\|(P^k_{t,i,j}, Q^k_{t,i,j})\right\|$
-        \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\hat{\mathbf{d}}^T\mathbf{x}_{ij} / \|\hat{\mathbf{d}}\| \geq r_\ell\sqrt{l_{t,i,j}v_{t,i}}\right\}$
+        \STATE $\hat{\mathbf{d}} \leftarrow (2P^k_{t,i,j}, 2Q^k_{t,i,j}, l^k_{t,i,j}-v^k_{t,i})^T / \left\|(2P^k_{t,i,j}, 2Q^k_{t,i,j}, l^k_{t,i,j}-v^k_{t,i})\right\|$
+        \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\hat{\mathbf{d}}^T\mathbf{x}_{ij} / \|\hat{\mathbf{d}}\| \geq r_\ell(l_{t,i,j}+v_{t,i})\right\}$
     \ENDFOR
     \STATE \textit{// 步骤 5：判断层内停滞}
     \IF{$|\mathcal{H}| \geq W_{\text{stag}}$}
-        \STATE $H_{\text{recent}} \leftarrow \text{LAST\_N\_ELEMENTS}(\mathcal{H}, W_{\text{stag}})$
-        \STATE $\text{improvements} \leftarrow \{H_{\text{recent}}[i] - H_{\text{recent}}[i+1] \mid i = 1,\ldots,W_{\text{stag}}-1\}$
+        \STATE $\mathcal{H}_{\text{recent}} \leftarrow \text{LAST\_N\_ELEMENTS}(\mathcal{H}, W_{\text{stag}})$
+        \STATE $\text{improvements} \leftarrow \{\mathcal{H}_{\text{recent}}[i] - \mathcal{H}_{\text{recent}}[i+1] \mid i = 1,\ldots,W_{\text{stag}}-1\}$
         \IF{$\max(\text{improvements}) < \epsilon_{\text{stag}}$}
             \STATE \textit{// 步骤 6：层次提升}
             \IF{$\ell < L_{\max}$}
-                \STATE $\ell \leftarrow \ell + 1$；$\ r_\ell \leftarrow r_{\min} + (\ell-1)/(L_{\max}-1) \cdot (1 - r_{\min})$
+                \STATE $\ell \leftarrow \ell + 1$,$\ r_\ell \leftarrow r_{\min} + (\ell-1)/(L_{\max}-1) \cdot (1 - r_{\min})$ \COMMENT{层内停滞，提升层次}
                 \STATE $\mathcal{D}_\ell \leftarrow \text{GENERATE\_GLOBAL\_DIRECTIONS}(\ell)$
                 \FORALL{$(i,j) \in E,\ t \in [0,T-1],\ \mathbf{d} \in \mathcal{D}_\ell$}
-                    \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_\ell\sqrt{l_{t,i,j}v_{t,i}}\right\}$
+                    \STATE $\mathcal{L} \leftarrow \mathcal{L} \cup \left\{\mathbf{d}^T\mathbf{x}_{ij} / \|\mathbf{d}\| \geq r_\ell(l_{t,i,j}+v_{t,i})\right\}$
                 \ENDFOR
                 \STATE $\mathcal{H} \leftarrow \emptyset$ \COMMENT{清空历史，开始新层监测}
             \ELSE
@@ -371,42 +384,113 @@ l_{t,i,j} \cdot v_{t,i} = P_{t,i,j}^2 + Q_{t,i,j}^2 \quad \Rightarrow \quad \lef
 
 \subsection{算法复杂度分析}
 
-\textbf{时间复杂度（单次迭代）}：
+\subsubsection{时间复杂度}
+
+\textbf{决策变量规模。}
+问题的决策变量共有
+\begin{equation}
+n = \underbrace{3T|E|}_{\text{支路变量}\ P, Q, l}
+  + \underbrace{3T|N|}_{\text{节点变量}\ v, p, q}
+  + \underbrace{2T|G|}_{\text{发电机变量}}
+  + \underbrace{T|DR|}_{\text{可调负荷变量}}
+= O\!\left(T \cdot |N|\right)
+\end{equation}
+个，其中对辐射状（树形）配电网有 $|E| = |N|-1$，且通常 $|G|, |DR| \ll |N|$，故 $n = O(T|N|) = O(T|E|)$。
+
+\textbf{单次迭代各步骤代价。}
+初始约束数（原始 SOCP，不含割集合 $\mathcal{L}$）为
+\[
+m_0 = O\!\left(T \cdot (|E|+|N|)\right) = O(n),
+\]
+包括功率平衡等式 ($2T|N|$)、电压方程等式 ($T|E|$)、二阶锥约束 ($T|E|$) 及各类上下界约束。
+内点法求解 SOCP 时，每次牛顿步需对规模 $n \times n$ 的法方程组进行 Cholesky 分解，代价为 $O(n^2 m + n^3)$；当 $m = O(n)$ 时单步代价为 $O(n^3)$，内点法通常在 $O(1)$--$O(\sqrt{n})$ 步内收敛，整体近似为 $O(n^3)$。
+间隙计算（步骤 2）遍历所有 $T|E|$ 个支路--时段对，代价 $O(T|E|)$；
+方向割生成（步骤 4）同样遍历一次，代价 $O(T|E|)$。
+两者均满足 $T|E| = O(n) \ll n^3$，对总代价贡献可忽略。
+
+\textbf{累积割对后续迭代的影响。}
+第 $k$ 次迭代时，约束集合 $\mathcal{L}$ 已累积至多 $k \cdot T|E|$ 条割，约束总数为
+\[
+m_k = O\!\left(n + k \cdot T|E|\right) = O(k \cdot n).
+\]
+对应的 SOCP 求解代价上升至 $O(n^2 m_k + n^3) = O(k \cdot n^3)$。
+全部 $K_{\max}$ 次迭代的总时间代价为
+\[
+\sum_{k=1}^{K_{\max}} O(k \cdot n^3)
+= O\!\left(K_{\max}^2 \cdot n^3\right).
+\]
+由于 $K_{\max}$ 为小常数（默认 50），实践中可视为 $O(K_{\max}^2 \cdot n^3)$。
 
 \begin{table}[h]
 \centering
+\caption{单次迭代时间复杂度（第 $k$ 次，$k$ 次累积割已加入）}
 \begin{tabular}{lcc}
 \toprule
 操作 & 复杂度 & 说明 \\
 \midrule
-SOCP 求解 & $O(n^3)$ & $n$ 为决策变量数 \\
-间隙计算 & $O(T \cdot |E|)$ & 遍历所有支路和时段 \\
-方向割添加 & $O(T \cdot |E|)$ & 最多添加 $T \cdot |E|$ 个约束 \\
-\textbf{总计} & \textbf{$O(n^3)$} & 由 SOCP 求解主导 \\
+SOCP 求解（含已积累割）& $O(k \cdot n^3)$ & $k=1$ 时退化为 $O(n^3)$ \\
+锥松弛间隙计算 & $O(T \cdot |E|)$ & 逐支路--时段遍历 \\
+方向割生成与写入 & $O(T \cdot |E|)$ & 至多新增 $T|E|$ 条线性约束 \\
+\midrule
+\textbf{单次迭代总计} & $\mathbf{O(k \cdot n^3)}$ & SOCP 求解占主导 \\
+\textbf{全程总计（$K_{\max}$ 次）} & $\mathbf{O(K_{\max}^2 \cdot n^3)}$ & $K_{\max}$ 为常数 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{空间复杂度}：
+\subsubsection{空间复杂度}
+
+\textbf{决策变量存储。}
+支路变量 $P, Q, l$ 共 $3T|E|$ 个，节点变量 $v, p, q$ 共 $3T|N|$ 个，合计 $O(T \cdot (|E|+|N|)) = O(T|N|) = O(T|E|)$（辐射网）。
+
+\textbf{方向割约束集合 $\mathcal{L}$ 的存储。}
+每条割约束形如
+\[
+\hat{\mathbf{d}}^T \mathbf{x}_{ij} \geq r_\ell\,(l_{t,i,j}+v_{t,i}),
+\]
+仅涉及某条支路 $(i,j)$ 在时段 $t$ 的 3--4 个变量，以稀疏线性约束存储时每条代价 $O(1)$。
+自适应割（步骤 4）：每轮至多新增 $T|E|$ 条，$K_{\max}$ 轮后累积不超过 $K_{\max} \cdot T|E|$ 条。
+全局方向集割（步骤 6 层切换）：每次层切换对全部 $T|E|$ 个支路--时段对添加 $|\mathcal{D}_\ell|$ 条割，$L_{\max}$ 次切换共增加 $\sum_{\ell} |\mathcal{D}_\ell| \cdot T|E|$ 条；由于 $L_{\max}$ 及各层方向数 $|\mathcal{D}_\ell|$ 均为固定小常数，此项可并入 $O(K_{\max} \cdot T|E|)$ 量级。
+
+间隙历史集合 $\mathcal{H}$ 每次层切换后清空，始终仅保留 $W_{\text{stag}}$ 个标量，占用 $O(1)$ 空间。
 
 \begin{table}[h]
 \centering
+\caption{空间复杂度}
 \begin{tabular}{lcc}
 \toprule
 数据结构 & 复杂度 & 说明 \\
 \midrule
-决策变量 & $O(T \cdot |E|)$ & 支路变量和节点变量 \\
-方向割约束集合 $\mathcal{L}$ & $O(K_{\max} \cdot T \cdot |E|)$ & 最坏情况 \\
-\textbf{总计} & \textbf{$O(K_{\max} \cdot T \cdot |E|)$} & - \\
+决策变量 & $O(T \cdot |E|)$ & 辐射网 $|N| \approx |E|$，节点变量同阶 \\
+割约束集合 $\mathcal{L}$（稀疏存储） & $O(K_{\max} \cdot T \cdot |E|)$ & 每条割仅含 $O(1)$ 非零系数 \\
+间隙历史 $\mathcal{H}$ & $O(1)$ & 层切换后清空，最多 $W_{\text{stag}}$ 个标量 \\
+\midrule
+\textbf{总计} & $\mathbf{O(K_{\max} \cdot T \cdot |E|)}$ & 割集合占主导 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{迭代次数}：
+\subsubsection{迭代次数分析}
+
+\textbf{间隙序列的单调性。}
+每次向 $\mathcal{L}$ 加入新割后，可行域单调缩小，下一次 SOCP 的最优解受到更严格约束。由于新割的方向正是当前松弛间隙最大的支路方向，割的添加直接限制了该方向上的自由度，实践中可观察到最大间隙序列 $\{\Delta^k_{\max}\}$ 具有单调不增趋势。
+
+\textbf{层次结构提供的终止上界。}
+算法最多执行 $L_{\max}$ 次层切换。每层内，若连续 $W_{\text{stag}}$ 次迭代的间隙改善量均低于 $\epsilon_{\text{stag}}$，则触发层切换，因此每层消耗的「停滞迭代」不超过 $W_{\text{stag}}$ 次。层切换引入的全局方向集割覆盖了更大角度范围，显著增大约束覆盖度，从而加速下一层的收敛。层切换终止的总迭代上界为 $L_{\max} \cdot W_{\text{stag}}$（纯停滞情形下），结合各层内的有效收敛迭代，总迭代次数约为
+\[
+K_{\text{est}} \lesssim L_{\max} \cdot (W_{\text{stag}} + K_{\text{converge per layer}}),
+\]
+其中 $K_{\text{converge per layer}}$ 为单层内达到收敛或触发停滞所需的有效迭代数。
+
+\textbf{典型参数下的估算。}
+取 $L_{\max} = 3$，$W_{\text{stag}} = 5$，$K_{\text{converge per layer}} \approx 5$--$10$，则估算总迭代数为 $3 \times (5 + 7.5) \approx 37.5$，与经验值 10--30 次吻合（辐射网 SOCP 松弛通常已接近紧，初始间隙较小，实际迭代数偏少）。
+最坏情况受 $K_{\max} = 50$ 强制截断，不会超出。
+
 \begin{itemize}
-\item 典型情况：10-30 次迭代
-\item 最坏情况：$K_{\max} = 50$ 次迭代
-\item 层数：通常 2-3 层
+\item \textbf{典型情况}：10--30 次迭代（辐射网松弛间隙小，少量割即可收紧）
+\item \textbf{层切换上界}：$L_{\max} \cdot W_{\text{stag}}$（纯停滞路径）
+\item \textbf{硬上界}：$K_{\max}$（算法强制终止条件）
+\item \textbf{层数}：通常触发 2--3 次层切换，即停留于第 2--3 层时收敛
 \end{itemize}
 
 
