@@ -940,14 +940,17 @@ def solve_single_pipeline(scenario_data, output_dir, scenario_id):
             model, vars_dict['T_var'], vars_dict['Z_var'], vars_dict['U_var'],
             E, T, eps=SOCP_GAP_THRESHOLD, eps_stag=1e-4, W_stag=5, L_max=50, K_max=1000
         )
-        status_str = "收敛" if recovery_converged else "未完全收敛"
+        status_str = "收敛" if recovery_converged else "未完全收敛/达到极限"
         print(f"  [锥还原] 完成：迭代 {recovery_iters} 次，最终 max Δ={gap_max_final:.3e}，{status_str}")
 
-        # 用还原后的解重新提取结果
+        # 💡 修改这里：只有在 Gurobi 模型确实有解的情况下，才重新提取结果。
+        # 如果模型因为加割太紧而崩了（SolCount == 0），则直接使用进入锥还原前的 result_arrays（或者是上一次成功的）
         if model.SolCount > 0:
             result_arrays, gap_max, socp_gap_arr = extract_results(vars_dict, network_info)
             hc_val    = hc.X
             scale_val = scale.X
+        else:
+            print("  [锥还原] 最终状态为无解，沿用最后一轮可行的结果数据。")
 
     # ── 步骤 4：构造元信息，释放模型 ──
     result_meta = {
